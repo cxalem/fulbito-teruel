@@ -79,6 +79,7 @@ interface SignupFormProps {
   user: User | null;
   onSuccess: () => void;
   onCancel: () => void;
+  isTraining?: boolean;
 }
 
 const POSITION_OPTIONS = [
@@ -97,6 +98,7 @@ export function SignupForm({
   user,
   onSuccess,
   onCancel,
+  isTraining = false,
 }: SignupFormProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
@@ -175,11 +177,13 @@ export function SignupForm({
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Team Display */}
-      <div className="flex items-center justify-center gap-2 p-4 rounded-lg border bg-muted/50 w-fit md:w-full">
-        <div className={`w-4 h-4 rounded-full ${teamColor} border`} />
-        <span className="font-medium">Apuntándose al {teamName}</span>
-      </div>
+      {/* Team Display - Only for friendly matches */}
+      {!isTraining && (
+        <div className="flex items-center justify-center gap-2 p-4 rounded-lg border bg-muted/50 w-fit md:w-full">
+          <div className={`w-4 h-4 rounded-full ${teamColor} border`} />
+          <span className="font-medium">Apuntándose al {teamName}</span>
+        </div>
+      )}
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 overflow-x-hidden">
@@ -378,10 +382,12 @@ export function SignupForm({
             </CardHeader>
             <CardContent>
               <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span>Equipo:</span>
-                  <span className="font-medium">{teamName}</span>
-                </div>
+                {!isTraining && (
+                  <div className="flex justify-between">
+                    <span>Equipo:</span>
+                    <span className="font-medium">{teamName}</span>
+                  </div>
+                )}
                 <div className="flex justify-between">
                   <span>Posición:</span>
                   <span className="font-medium">

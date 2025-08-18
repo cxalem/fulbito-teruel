@@ -46,7 +46,7 @@ export function MatchCard({ match, isAdmin = false }: MatchCardProps) {
                   variant={match.match_type === 'friendly' ? 'secondary' : 'default'}
                   className="text-xs"
                 >
-                  {match.match_type === 'friendly' ? 'Amistoso' : 'Competitivo'}
+                  {match.match_type === 'friendly' ? 'Amistoso' : 'Entrenamiento'}
                 </Badge>
                 {match.is_private && (
                   <Badge variant="outline" className="text-xs">

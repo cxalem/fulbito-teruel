@@ -27,6 +27,7 @@ interface TeamLineupProps {
   user: User | null;
   isAdmin: boolean;
   canSignup: boolean;
+  isTraining?: boolean;
 }
 
 
@@ -40,6 +41,7 @@ export function TeamLineup({
   user,
   isAdmin,
   canSignup,
+  isTraining = false,
 }: TeamLineupProps) {
   const teamColor =
     team === "white" ? "bg-zinc-100" : "bg-zinc-900 dark:bg-zinc-700";
@@ -67,7 +69,7 @@ export function TeamLineup({
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
-            <div className={`w-4 h-4 rounded-full ${teamColor}`} />
+            {!isTraining && <div className={`w-4 h-4 rounded-full ${teamColor}`} />}
             {teamName}
             <Badge variant="secondary" className="ml-2">
               {players.length} jugadores
@@ -80,6 +82,7 @@ export function TeamLineup({
             teamName={teamName}
             user={user}
             canSignup={canSignup}
+            isTraining={isTraining}
           />
         </div>
       </CardHeader>

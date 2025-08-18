@@ -238,29 +238,49 @@ export function MatchDetailView({
       </Card>
 
       {/* Team Lineups */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <TeamLineup
-          matchId={match.id}
-          team="white"
-          teamName="Equipo Blanco"
-          players={lineups?.white || []}
-          isLoading={lineupsLoading}
-          user={user}
-          isAdmin={isAdmin}
-          canSignup={isUpcoming && spotsRemaining > 0}
-        />
+      {match.match_type === 'training' ? (
+        /* Single list for training matches */
+        <div className="space-y-6">
+          <TeamLineup
+            matchId={match.id}
+            team="white" // Default team for training
+            teamName="Jugadores"
+            players={[...(lineups?.white || []), ...(lineups?.black || [])]}
+            isLoading={lineupsLoading}
+            user={user}
+            isAdmin={isAdmin}
+            canSignup={isUpcoming && spotsRemaining > 0}
+            isTraining={true}
+          />
+        </div>
+      ) : (
+        /* Two teams for friendly matches */
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <TeamLineup
+            matchId={match.id}
+            team="white"
+            teamName="Equipo Blanco"
+            players={lineups?.white || []}
+            isLoading={lineupsLoading}
+            user={user}
+            isAdmin={isAdmin}
+            canSignup={isUpcoming && spotsRemaining > 0}
+            isTraining={false}
+          />
 
-        <TeamLineup
-          matchId={match.id}
-          team="black"
-          teamName="Equipo Negro"
-          players={lineups?.black || []}
-          isLoading={lineupsLoading}
-          user={user}
-          isAdmin={isAdmin}
-          canSignup={isUpcoming && spotsRemaining > 0}
-        />
-      </div>
+          <TeamLineup
+            matchId={match.id}
+            team="black"
+            teamName="Equipo Negro"
+            players={lineups?.black || []}
+            isLoading={lineupsLoading}
+            user={user}
+            isAdmin={isAdmin}
+            canSignup={isUpcoming && spotsRemaining > 0}
+            isTraining={false}
+          />
+        </div>
+      )}
 
       {/* Full capacity message */}
       {spotsRemaining <= 0 && isUpcoming && (

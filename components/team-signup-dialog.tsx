@@ -19,6 +19,7 @@ interface TeamSignupDialogProps {
   teamName: string;
   user: User | null;
   canSignup: boolean;
+  isTraining?: boolean;
 }
 
 export function TeamSignupDialog({ 
@@ -26,7 +27,8 @@ export function TeamSignupDialog({
   team, 
   teamName, 
   user, 
-  canSignup 
+  canSignup,
+  isTraining = false
 }: TeamSignupDialogProps) {
   const [showSignupDialog, setShowSignupDialog] = useState(false);
 
@@ -47,9 +49,14 @@ export function TeamSignupDialog({
       <Dialog open={showSignupDialog} onOpenChange={setShowSignupDialog}>
         <DialogContent className="sm:max-w-md h-[600px] md:h-[720px] flex flex-col">
           <DialogHeader>
-            <DialogTitle>Apuntarse al {teamName}</DialogTitle>
+            <DialogTitle>
+              {isTraining ? "Apuntarse al entrenamiento" : `Apuntarse al ${teamName}`}
+            </DialogTitle>
             <DialogDescription>
-              Completa la información para unirte a este equipo
+              {isTraining 
+                ? "Completa la información para unirte a este entrenamiento" 
+                : "Completa la información para unirte a este equipo"
+              }
             </DialogDescription>
           </DialogHeader>
 
@@ -60,6 +67,7 @@ export function TeamSignupDialog({
               user={user}
               onSuccess={() => setShowSignupDialog(false)}
               onCancel={() => setShowSignupDialog(false)}
+              isTraining={isTraining}
             />
           </div>
         </DialogContent>

@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
     const matchCount = searchParams.get('matchCount')
     const playerCount = searchParams.get('playerCount')
 
-    return new ImageResponse(
+    const response = new ImageResponse(
       (
         <div
           style={{
@@ -146,8 +146,13 @@ export async function GET(request: NextRequest) {
       {
         width: 1200,
         height: 630,
+        headers: {
+          'Cache-Control': 'no-cache, no-store, max-age=0, must-revalidate',
+        },
       }
     )
+    
+    return response
   } catch (e) {
     console.error('Error generating OG image:', e)
     return new Response(`Failed to generate the image: ${e instanceof Error ? e.message : 'Unknown error'}`, {

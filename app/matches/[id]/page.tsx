@@ -94,7 +94,7 @@ export async function generateMetadata({ params }: MatchPageProps) {
       locale: 'es_ES',
       images: [
         {
-          url: `/api/og/match?id=${id}`,
+          url: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/og/match?id=${id}&v=${Date.now()}`,
           width: 1200,
           height: 630,
           alt: `Partido de fútbol en ${location}`,
@@ -106,7 +106,7 @@ export async function generateMetadata({ params }: MatchPageProps) {
       title,
       description,
       creator: '@fulbitoteruel',
-      images: [`/api/og/match?id=${id}`],
+      images: [`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/og/match?id=${id}&v=${Date.now()}`],
     },
   }
 }

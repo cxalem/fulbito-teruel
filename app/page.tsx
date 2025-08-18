@@ -10,7 +10,8 @@ export async function generateMetadata(): Promise<Metadata> {
   const matchCount = stats.success ? stats.data?.matchCount : 0
   const playerCount = stats.success ? stats.data?.playerCount : 0
   
-  const ogImageUrl = `/api/og?type=home&title=${encodeURIComponent('Fulbito Teruel')}&description=${encodeURIComponent('Partidos de fútbol en Teruel')}&matchCount=${matchCount}&playerCount=${playerCount}`
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+  const ogImageUrl = `${baseUrl}/api/og?type=home&title=${encodeURIComponent('Fulbito Teruel')}&description=${encodeURIComponent('Partidos de fútbol en Teruel')}&matchCount=${matchCount}&playerCount=${playerCount}&v=${Date.now()}`
   
   return {
     title: 'Inicio - Fulbito Teruel',

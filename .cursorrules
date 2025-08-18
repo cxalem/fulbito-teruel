@@ -1,0 +1,336 @@
+# Fulbito Teruel - Next.js + Supabase Football Matches App
+
+## Project Overview
+Building a football matches management app with Next.js App Router, TypeScript, Supabase, and shadcn/ui. Admins create matches, players (no auth) sign up for matches, automatic cleanup after matches end.
+
+**Language**: All user-facing text must be in Spanish. Code, comments, variable names, and technical documentation remain in English.
+
+## Tech Stack & Constraints
+
+### Framework & Core
+- Next.js (latest) with App Router and TypeScript
+- Server Actions enabled for mutations
+- Supabase for auth, database, and storage
+- Use `@supabase/ssr` for proper SSR handling
+- React Query (TanStack Query) for client-side data fetching and caching
+- **Package Manager**: Use pnpm exclusively (faster, more efficient than npm/yarn)
+
+### UI & Styling
+- Tailwind CSS with shadcn/ui components
+- **CRITICAL**: Use zinc/slate palette only - NO pure white (#fff) or black (#000)
+  - Light: `bg-zinc-50`, `text-zinc-900`, `border-zinc-200`
+  - Dark: `bg-zinc-950`, `text-zinc-100`, `border-zinc-800`
+- All clickable elements MUST include `cursor-pointer`
+- Mobile-first, responsive design
+- Light/dark theme with `next-themes`
+
+### Authentication & Security
+- Supabase Auth with Google OAuth only
+- Admins must authenticate (auto-enrolled via ADMIN_EMAILS env var)
+- Players do NOT require authentication (open signups)
+- RLS enforces: only admins can write matches, everything else is open
+
+### Database Schema
+- `admins` table: authenticated users who can create matches
+- `players` table: lightweight profiles (no auth), unique display_name
+- `matches` table: events with renter info, privacy settings
+- `signups` table: player registrations with team/position
+- Use provided SQL exactly as specified in prompt.md
+
+## Code Style & Patterns
+
+### File Organization
+```
+app/
+  ├── globals.css
+  ├── layout.tsx (ThemeProvider + QueryClientProvider + navbar)
+  ├── page.tsx (upcoming matches list)
+  ├── matches/
+  │   ├── new/page.tsx (admin only)
+  │   └── [id]/page.tsx (match detail + signups)
+  └── auth/callback/route.ts
+lib/
+  ├── supabase/
+  │   ├── client.ts (createBrowserClient)
+  │   ├── server.ts (createServerClient)
+  │   └── types.ts (generated types)
+  ├── actions/ (server actions)
+  ├── queries/ (react query hooks)
+  └── utils.ts
+components/
+  ├── ui/ (shadcn components)
+  ├── providers/ (QueryClientProvider wrapper)
+  ├── theme-toggle.tsx
+  ├── auth-button.tsx
+  └── match-card.tsx
+```
+
+### TypeScript & Data Handling
+- Always use proper TypeScript with Supabase generated types
+- Handle errors gracefully with try/catch and user-friendly messages
+- Use Zod for form validation
+- Prefer Server Actions over API routes for mutations
+- Use proper loading states and error boundaries
+- Use React Query for client-side data fetching with proper cache management
+
+### Component Patterns
+- Use shadcn/ui components: Button, Card, Input, Select, Dialog, Badge, Avatar
+- Wrap all forms in proper error handling
+- Show loading skeletons during data fetching
+- Use toast notifications for user feedback (in Spanish)
+- Make all interactive elements accessible (proper labels, roles)
+- All user-facing text, labels, messages, and notifications must be in Spanish
+
+## Database Interaction Rules
+
+### React Query Patterns
+```typescript
+// Query Hook Pattern
+export function useUpcomingMatches() {
+  return useQuery({
+    queryKey: ['matches', 'upcoming'],
+    queryFn: async () => {
+      const supabase = createBrowserClient()
+      const { data, error } = await supabase
+        .from('matches')
+        .select('*')
+        .gte('starts_at', new Date().toISOString())
+        .order('starts_at', { ascending: true })
+        .limit(20)
+      
+      if (error) throw new Error(`Failed to fetch matches: ${error.message}`)
+      return data
+    },
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  })
+}
+
+// Match Detail Hook
+export function useMatch(matchId: string) {
+  return useQuery({
+    queryKey: ['matches', matchId],
+    queryFn: async () => {
+      const supabase = createBrowserClient()
+      const { data, error } = await supabase
+        .from('matches')
+        .select('*')
+        .eq('id', matchId)
+        .single()
+      
+      if (error) throw new Error(`Failed to fetch match: ${error.message}`)
+      return data
+    },
+    enabled: !!matchId,
+  })
+}
+
+// Team Lineup Hook
+export function useTeamLineup(matchId: string, team: 'white' | 'black') {
+  return useQuery({
+    queryKey: ['lineup', matchId, team],
+    queryFn: async () => {
+      const supabase = createBrowserClient()
+      const { data, error } = await supabase
+        .rpc('get_team_lineup', { _match_id: matchId, _team: team })
+      
+      if (error) throw new Error(`Failed to fetch lineup: ${error.message}`)
+      return data
+    },
+    enabled: !!matchId && !!team,
+    staleTime: 1000 * 60 * 2, // 2 minutes
+  })
+}
+```
+
+### Server Actions & Mutations
+- Use Server Actions for all mutations
+- Use React Query mutations with proper cache invalidation
+- Handle RLS permission errors gracefully
+- Return typed results with success/error states
+
+```typescript
+// Mutation Pattern
+export function useCreateSignup() {
+  const queryClient = useQueryClient()
+  
+  return useMutation({
+    mutationFn: async (data: SignupFormData) => {
+      const result = await createSignupAction(data)
+      if (!result.success) throw new Error(result.error)
+      return result.data
+    },
+    onSuccess: (data) => {
+      // Invalidate related queries
+      queryClient.invalidateQueries({ queryKey: ['lineup', data.matchId] })
+      queryClient.invalidateQueries({ queryKey: ['matches', data.matchId] })
+      toast.success('¡Te has apuntado con éxito!')
+    },
+    onError: (error) => {
+      toast.error(error instanceof Error ? error.message : 'Algo salió mal')
+    },
+  })
+}
+```
+
+### RLS Considerations
+- Matches: only admins can INSERT/UPDATE/DELETE
+- Players & Signups: open for all (no auth required)
+- Handle permission denied errors with helpful messages
+
+## UI/UX Guidelines
+
+### Theme & Colors
+- **NEVER** use pure white/black
+- Light theme: zinc-50/100/200 backgrounds, zinc-900 text
+- Dark theme: zinc-950/900/800 backgrounds, zinc-100 text
+- Use consistent rounded corners (`rounded-lg`, `rounded-2xl`)
+- Soft shadows with zinc colors
+
+### Interactive Elements
+- ALL clickable elements need `cursor-pointer`
+- Hover states for better UX
+- Loading states for async operations
+- Proper focus management for accessibility
+
+### Forms & Validation
+- Use react-hook-form with Zod validation
+- Show field-level errors clearly
+- Disable submit buttons during loading
+- Clear success/error feedback
+
+## Key Features & Business Logic
+
+### Match Privacy
+- Private matches show type but hide location/time for non-admins
+- Still show in lists but marked as "Private"
+- Admin users can see all details
+
+### Player Management
+- No auth required - lightweight profiles
+- Unique display_name constraint
+- Optional avatar upload to Supabase Storage
+- Use localStorage to remember player name for UX
+
+### Signup Flow
+- Select team (white/black) and position (enum)
+- Can create player inline or select existing
+- Edit team/position after signup
+- Remove signup functionality
+
+### Auto-cleanup
+- Edge Function to delete matches 1 hour after end time
+- Signups cascade delete automatically
+- Schedule via supabase.toml cron job
+
+## Environment Variables
+```
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY= # Edge Functions only
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+ADMIN_EMAILS=alejandro@example.com,another@example.com
+```
+
+## Common Patterns
+
+### Auth Check
+```typescript
+const supabase = createServerClient()
+const { data: { user } } = await supabase.auth.getUser()
+const isAdmin = user ? await checkIsAdmin(user.id) : false
+```
+
+### Error Handling
+```typescript
+try {
+  const result = await someAction()
+  toast.success("Acción completada con éxito")
+} catch (error) {
+  toast.error(error instanceof Error ? error.message : "Algo salió mal")
+}
+```
+
+### Loading States with React Query
+```typescript
+// Query loading states
+const { data: matches, isLoading, error } = useUpcomingMatches()
+
+if (isLoading) return <MatchesSkeleton />
+if (error) return <ErrorMessage error={error} />
+
+// Mutation loading states
+const createSignup = useCreateSignup()
+
+return (
+  <Button 
+    onClick={() => createSignup.mutate(formData)}
+    disabled={createSignup.isPending}
+    className="cursor-pointer"
+  >
+    {createSignup.isPending ? 'Apuntándose...' : 'Apuntarse'}
+  </Button>
+)
+```
+
+## Development Workflow
+1. Start with database schema (provided SQL)
+2. Set up Supabase client utilities
+3. Build features incrementally (matches list → create → detail → signups)
+4. Test RLS policies at each step
+5. Polish UI/UX and add error handling
+6. Set up cleanup Edge Function
+
+## Don'ts
+- Don't use pure white/black colors
+- Don't forget cursor-pointer on clickables
+- Don't skip error handling
+- Don't bypass RLS policies
+- Don't create files without proper TypeScript types
+- Don't make players authenticate (they should remain anonymous)
+- Don't create documentation files unless explicitly requested
+- Don't use npm or yarn - always use pnpm for package management
+
+## Key Commands
+```bash
+# Install dependencies
+pnpm add @supabase/supabase-js @supabase/ssr @tanstack/react-query next-themes lucide-react react-hook-form zod date-fns clsx
+
+# Add shadcn components
+pnpx shadcn-ui@latest add button card input select dialog badge avatar toast
+
+# Generate Supabase types
+pnpx supabase gen types typescript --project-id YOUR_PROJECT_ID > lib/supabase/types.ts
+```
+
+## React Query Setup
+```typescript
+// components/providers/query-client-provider.tsx
+'use client'
+
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+import { useState } from 'react'
+
+export function QueryProvider({ children }: { children: React.ReactNode }) {
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            staleTime: 1000 * 60 * 5, // 5 minutes
+            refetchOnWindowFocus: false,
+          },
+        },
+      })
+  )
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      {children}
+      <ReactQueryDevtools initialIsOpen={false} />
+    </QueryClientProvider>
+  )
+}
+```
+
+Remember: This is a zero-friction MVP where only admins need to authenticate. Players can participate anonymously with just a display name.

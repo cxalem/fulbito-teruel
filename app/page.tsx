@@ -1,7 +1,32 @@
+import type { Metadata } from 'next'
 import { getCurrentUser } from '@/lib/auth'
 import { AdminTestPanel } from '@/components/admin-test-panel'
 import { DebugPanel } from '@/components/debug-panel'
 import { UpcomingMatchesList } from '@/components/upcoming-matches-list'
+
+export const metadata: Metadata = {
+  title: 'Inicio - Fulbito Teruel',
+  description: 'Encuentra y únete a partidos de fútbol en Teruel. Descubre próximos partidos, forma equipos y disfruta del deporte rey.',
+  openGraph: {
+    title: 'Inicio - Fulbito Teruel',
+    description: 'Encuentra y únete a partidos de fútbol en Teruel. Descubre próximos partidos, forma equipos y disfruta del deporte rey.',
+    url: '/',
+    images: [
+      {
+        url: '/api/og?type=home&title=Fulbito Teruel&description=Partidos de fútbol en Teruel',
+        width: 1200,
+        height: 630,
+        alt: 'Fulbito Teruel - Partidos de fútbol en Teruel',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Inicio - Fulbito Teruel',
+    description: 'Encuentra y únete a partidos de fútbol en Teruel. Descubre próximos partidos, forma equipos y disfruta del deporte rey.',
+    images: ['/api/og?type=home&title=Fulbito Teruel&description=Partidos de fútbol en Teruel'],
+  },
+}
 
 export default async function Home() {
   const { user, isAdmin } = await getCurrentUser()

@@ -42,19 +42,71 @@ export async function generateMetadata({ params }: MatchPageProps) {
   if (!matchResult.success || !matchResult.data) {
     return {
       title: 'Partido no encontrado - Fulbito Teruel',
+      description: 'El partido que buscas no existe o ha sido eliminado.',
+      openGraph: {
+        title: 'Partido no encontrado - Fulbito Teruel',
+        description: 'El partido que buscas no existe o ha sido eliminado.',
+        type: 'website',
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: 'Partido no encontrado - Fulbito Teruel',
+        description: 'El partido que buscas no existe o ha sido eliminado.',
+      },
     }
   }
 
   const match = matchResult.data
-  const date = new Date(match.starts_at).toLocaleDateString('es-ES', {
+  const startDate = new Date(match.starts_at)
+  const endDate = new Date(match.ends_at)
+  
+  const date = startDate.toLocaleDateString('es-ES', {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
     day: 'numeric'
   })
+  
+  const time = `${startDate.toLocaleTimeString('es-ES', {
+    hour: '2-digit',
+    minute: '2-digit'
+  })} - ${endDate.toLocaleTimeString('es-ES', {
+    hour: '2-digit',
+    minute: '2-digit'
+  })}`
+
+  const location = match.is_private ? 'Ubicación privada' : match.location
+  const matchType = match.match_type === 'friendly' ? 'Amistoso' : 'Entrenamiento'
+  
+  const title = `${location} - ${date} - Fulbito Teruel`
+  const description = `${matchType} de fútbol en ${location} el ${date} a las ${time}. Capacidad: ${match.capacity} jugadores.${match.total_cost ? ` Coste: €${match.total_cost}` : ''}`
 
   return {
-    title: `${match.location} - ${date} - Fulbito Teruel`,
-    description: `Partido de fútbol en ${match.location} el ${date}. Capacidad: ${match.capacity} jugadores.`,
+    title,
+    description,
+    keywords: ["fútbol", "teruel", "partido", matchType.toLowerCase(), "deporte", "equipos"],
+    openGraph: {
+      title,
+      description,
+      type: 'website',
+      url: `/matches/${id}`,
+      siteName: 'Fulbito Teruel',
+      locale: 'es_ES',
+      images: [
+        {
+          url: `/api/og/match?id=${id}`,
+          width: 1200,
+          height: 630,
+          alt: `Partido de fútbol en ${location}`,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      creator: '@fulbitoteruel',
+      images: [`/api/og/match?id=${id}`],
+    },
   }
 }

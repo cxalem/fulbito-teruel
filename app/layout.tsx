@@ -18,7 +18,42 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Fulbito Teruel",
-  description: "Aplicación para gestionar partidos de fútbol en Teruel",
+  description: "Aplicación para gestionar partidos de fútbol en Teruel. Encuentra y únete a partidos de fútbol en tu ciudad.",
+  keywords: ["fútbol", "teruel", "partidos", "deporte", "equipos", "jugar"],
+  authors: [{ name: "Fulbito Teruel" }],
+  creator: "Fulbito Teruel",
+  publisher: "Fulbito Teruel",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
+  openGraph: {
+    title: "Fulbito Teruel",
+    description: "Aplicación para gestionar partidos de fútbol en Teruel. Encuentra y únete a partidos de fútbol en tu ciudad.",
+    url: "/",
+    siteName: "Fulbito Teruel",
+    locale: "es_ES",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Fulbito Teruel",
+    description: "Aplicación para gestionar partidos de fútbol en Teruel. Encuentra y únete a partidos de fútbol en tu ciudad.",
+    creator: "@fulbitoteruel",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
 };
 
 export default async function RootLayout({

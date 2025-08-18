@@ -1,6 +1,7 @@
 import { ImageResponse } from 'next/og'
 import { NextRequest } from 'next/server'
 import { getMatch } from '@/lib/actions/matches'
+import { createClient } from '@supabase/supabase-js'
 
 export const runtime = 'edge'
 
@@ -42,9 +43,22 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const match = matchResult.data
-    const startDate = new Date(match.starts_at)
-    const endDate = new Date(match.ends_at)
+      const match = matchResult.data
+  const startDate = new Date(match.starts_at)
+  const endDate = new Date(match.ends_at)
+  
+  // Get signup count for this match
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  )
+  const { count: signupCount } = await supabase
+    .from('signups')
+    .select('*', { count: 'exact', head: true })
+    .eq('match_id', matchId)
+  
+  const currentSignups = signupCount || 0
+  const spotsRemaining = match.capacity - currentSignups
     
     // Format date and time
     const dateStr = startDate.toLocaleDateString('es-ES', {
@@ -201,15 +215,15 @@ export async function GET(request: NextRequest) {
                     color: '#fafafa',
                   }}
                 >
-                  {match.capacity}
+                  {currentSignups}/{match.capacity}
                 </div>
                 <div
                   style={{
                     fontSize: 18,
-                    color: '#a1a1aa',
+                    color: spotsRemaining === 0 ? '#ef4444' : '#a1a1aa',
                   }}
                 >
-                  jugadores
+                  {spotsRemaining === 0 ? '¡Completo!' : `${spotsRemaining} disponibles`}
                 </div>
               </div>
 

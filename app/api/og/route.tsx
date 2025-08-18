@@ -9,6 +9,8 @@ export async function GET(request: NextRequest) {
     const title = searchParams.get('title') || 'Fulbito Teruel'
     const description = searchParams.get('description') || 'Partidos de fútbol en Teruel'
     const type = searchParams.get('type') || 'home'
+    const matchCount = searchParams.get('matchCount')
+    const playerCount = searchParams.get('playerCount')
 
     return new ImageResponse(
       (
@@ -93,7 +95,9 @@ export async function GET(request: NextRequest) {
                 }}
               >
                 <div style={{ fontSize: 40, marginBottom: 8 }}>🏟️</div>
-                <div style={{ fontSize: 20 }}>Encuentra partidos</div>
+                <div style={{ fontSize: 20 }}>
+                  {matchCount ? `${matchCount} partidos` : 'Encuentra partidos'}
+                </div>
               </div>
               
               <div
@@ -105,7 +109,9 @@ export async function GET(request: NextRequest) {
                 }}
               >
                 <div style={{ fontSize: 40, marginBottom: 8 }}>👥</div>
-                <div style={{ fontSize: 20 }}>Únete a equipos</div>
+                <div style={{ fontSize: 20 }}>
+                  {playerCount ? `${playerCount} jugadores` : 'Únete a equipos'}
+                </div>
               </div>
               
               <div

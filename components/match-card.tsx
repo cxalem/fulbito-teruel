@@ -9,7 +9,9 @@ import { es } from 'date-fns/locale'
 import Link from 'next/link'
 import type { Database } from '@/lib/supabase/types'
 
-type Match = Database['public']['Tables']['matches']['Row']
+type Match = Database['public']['Tables']['matches']['Row'] & {
+  signup_count?: number
+}
 
 interface MatchCardProps {
   match: Match
@@ -26,6 +28,12 @@ export function MatchCard({ match, isAdmin = false }: MatchCardProps) {
   
   // Check if match is private and user is not admin
   const isPrivateForUser = match.is_private && !isAdmin
+  
+  // Calculate signup progress
+  const signupCount = match.signup_count || 0
+  const capacity = match.capacity
+  const signupPercentage = capacity > 0 ? Math.round((signupCount / capacity) * 100) : 0
+  const spotsRemaining = capacity - signupCount
   
   return (
     <Card className="group hover:shadow-md transition-all duration-200 border-zinc-200 dark:border-zinc-800 cursor-pointer">
@@ -103,14 +111,30 @@ export function MatchCard({ match, isAdmin = false }: MatchCardProps) {
           <div className="mt-3 space-y-1">
             <div className="flex justify-between text-xs text-muted-foreground">
               <span>Inscripciones</span>
-              <span>0/{match.capacity}</span>
+              <span>{signupCount}/{capacity}</span>
             </div>
             <div className="w-full bg-zinc-200 dark:bg-zinc-700 rounded-full h-1.5">
               <div 
-                className="bg-primary h-1.5 rounded-full transition-all duration-300"
-                style={{ width: '0%' }}
+                className={`h-1.5 rounded-full transition-all duration-300 ${
+                  signupPercentage >= 100 
+                    ? 'bg-green-500' 
+                    : signupPercentage >= 80 
+                    ? 'bg-amber-500' 
+                    : 'bg-primary'
+                }`}
+                style={{ width: `${Math.min(signupPercentage, 100)}%` }}
               />
             </div>
+            {spotsRemaining > 0 && (
+              <div className="text-xs text-muted-foreground">
+                {spotsRemaining} {spotsRemaining === 1 ? 'lugar disponible' : 'lugares disponibles'}
+              </div>
+            )}
+            {signupPercentage >= 100 && (
+              <div className="text-xs text-green-600 dark:text-green-400 font-medium">
+                ¡Partido completo!
+              </div>
+            )}
           </div>
         </CardContent>
       </Link>

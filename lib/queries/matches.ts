@@ -17,25 +17,45 @@ export const matchKeys = {
   detail: (id: string) => [...matchKeys.all, 'detail', id] as const,
 }
 
-/**
- * Hook to fetch upcoming matches
- */
 export function useUpcomingMatches() {
   return useQuery({
     queryKey: matchKeys.upcoming(),
     queryFn: async () => {
       const supabase = createClient()
-      const { data, error } = await supabase
+      
+      // First get all upcoming matches
+      const { data: matches, error: matchesError } = await supabase
         .from('matches')
         .select('*')
         .gte('starts_at', new Date().toISOString())
         .order('starts_at', { ascending: true })
         .limit(20)
       
-      if (error) throw new Error(`Error al obtener partidos: ${error.message}`)
-      return data
+      if (matchesError) throw new Error(`Error al obtener partidos: ${matchesError.message}`)
+      if (!matches) return []
+      
+      // Get signup counts for all matches
+      const matchIds = matches.map(match => match.id)
+      const { data: signupCounts, error: signupError } = await supabase
+        .from('signups')
+        .select('match_id')
+        .in('match_id', matchIds)
+      
+      if (signupError) throw new Error(`Error al obtener inscripciones: ${signupError.message}`)
+      
+      // Count signups for each match
+      const signupCountMap = signupCounts?.reduce((acc, signup) => {
+        acc[signup.match_id] = (acc[signup.match_id] || 0) + 1
+        return acc
+      }, {} as Record<string, number>) || {}
+      
+      // Add signup count to each match
+      return matches.map(match => ({
+        ...match,
+        signup_count: signupCountMap[match.id] || 0
+      }))
     },
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: 1000 * 60 * 2, // 2 minutes (shorter since we want fresh signup data)
   })
 }
 

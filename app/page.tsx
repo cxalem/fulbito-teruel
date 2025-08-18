@@ -3,29 +3,38 @@ import { getCurrentUser } from '@/lib/auth'
 import { AdminTestPanel } from '@/components/admin-test-panel'
 import { DebugPanel } from '@/components/debug-panel'
 import { UpcomingMatchesList } from '@/components/upcoming-matches-list'
+import { getAppStats } from '@/lib/actions/stats'
 
-export const metadata: Metadata = {
-  title: 'Inicio - Fulbito Teruel',
-  description: 'Encuentra y únete a partidos de fútbol en Teruel. Descubre próximos partidos, forma equipos y disfruta del deporte rey.',
-  openGraph: {
+export async function generateMetadata(): Promise<Metadata> {
+  const stats = await getAppStats()
+  const matchCount = stats.success ? stats.data?.matchCount : 0
+  const playerCount = stats.success ? stats.data?.playerCount : 0
+  
+  const ogImageUrl = `/api/og?type=home&title=${encodeURIComponent('Fulbito Teruel')}&description=${encodeURIComponent('Partidos de fútbol en Teruel')}&matchCount=${matchCount}&playerCount=${playerCount}`
+  
+  return {
     title: 'Inicio - Fulbito Teruel',
     description: 'Encuentra y únete a partidos de fútbol en Teruel. Descubre próximos partidos, forma equipos y disfruta del deporte rey.',
-    url: '/',
-    images: [
-      {
-        url: '/api/og?type=home&title=Fulbito Teruel&description=Partidos de fútbol en Teruel',
-        width: 1200,
-        height: 630,
-        alt: 'Fulbito Teruel - Partidos de fútbol en Teruel',
-      },
-    ],
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Inicio - Fulbito Teruel',
-    description: 'Encuentra y únete a partidos de fútbol en Teruel. Descubre próximos partidos, forma equipos y disfruta del deporte rey.',
-    images: ['/api/og?type=home&title=Fulbito Teruel&description=Partidos de fútbol en Teruel'],
-  },
+    openGraph: {
+      title: 'Inicio - Fulbito Teruel',
+      description: 'Encuentra y únete a partidos de fútbol en Teruel. Descubre próximos partidos, forma equipos y disfruta del deporte rey.',
+      url: '/',
+      images: [
+        {
+          url: ogImageUrl,
+          width: 1200,
+          height: 630,
+          alt: 'Fulbito Teruel - Partidos de fútbol en Teruel',
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: 'Inicio - Fulbito Teruel',
+      description: 'Encuentra y únete a partidos de fútbol en Teruel. Descubre próximos partidos, forma equipos y disfruta del deporte rey.',
+      images: [ogImageUrl],
+    },
+  }
 }
 
 export default async function Home() {

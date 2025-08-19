@@ -35,9 +35,13 @@ export const createMatchSchema = z.object({
     .optional(),
   
   renter_name: z.string()
-    .min(2, 'El nombre debe tener al menos 2 caracteres')
-    .max(50, 'El nombre no puede exceder 50 caracteres')
-    .optional(),
+    .transform(val => val === '' ? undefined : val)
+    .pipe(
+      z.string()
+        .min(2, 'El nombre debe tener al menos 2 caracteres')
+        .max(50, 'El nombre no puede exceder 50 caracteres')
+        .optional()
+    ),
   
   renter_player_id: z.string().uuid().optional(),
   

@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Clock,
   Users,
@@ -261,31 +262,86 @@ export function MatchDetailView({
         </div>
       ) : (
         /* Two teams for friendly matches */
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <TeamLineup
-            matchId={match.id}
-            team="white"
-            teamName="Equipo Blanco"
-            players={lineups?.white || []}
-            isLoading={lineupsLoading}
-            user={user}
-            isAdmin={isAdmin}
-            canSignup={isUpcoming && spotsRemaining > 0}
-            isTraining={false}
-          />
+        <>
+          {/* Desktop view - side by side */}
+          <div className="hidden lg:grid lg:grid-cols-2 gap-6">
+            <TeamLineup
+              matchId={match.id}
+              team="white"
+              teamName="Equipo Blanco"
+              players={lineups?.white || []}
+              isLoading={lineupsLoading}
+              user={user}
+              isAdmin={isAdmin}
+              canSignup={isUpcoming && spotsRemaining > 0}
+              isTraining={false}
+            />
 
-          <TeamLineup
-            matchId={match.id}
-            team="black"
-            teamName="Equipo Negro"
-            players={lineups?.black || []}
-            isLoading={lineupsLoading}
-            user={user}
-            isAdmin={isAdmin}
-            canSignup={isUpcoming && spotsRemaining > 0}
-            isTraining={false}
-          />
-        </div>
+            <TeamLineup
+              matchId={match.id}
+              team="black"
+              teamName="Equipo Negro"
+              players={lineups?.black || []}
+              isLoading={lineupsLoading}
+              user={user}
+              isAdmin={isAdmin}
+              canSignup={isUpcoming && spotsRemaining > 0}
+              isTraining={false}
+            />
+          </div>
+
+          {/* Mobile view - tabs */}
+          <div className="lg:hidden">
+            {(() => {
+              const whitePlayersCount = lineups?.white?.length || 0;
+              const blackPlayersCount = lineups?.black?.length || 0;
+              
+              // Default to team with fewer players, or white if equal
+              const defaultTeam = whitePlayersCount <= blackPlayersCount ? "white" : "black";
+              
+              return (
+                <Tabs defaultValue={defaultTeam} className="w-full">
+                  <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="white" className="cursor-pointer">
+                      Blanco ({whitePlayersCount})
+                    </TabsTrigger>
+                    <TabsTrigger value="black" className="cursor-pointer">
+                      Negro ({blackPlayersCount})
+                    </TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="white" className="mt-6">
+                    <TeamLineup
+                      matchId={match.id}
+                      team="white"
+                      teamName="Equipo Blanco"
+                      players={lineups?.white || []}
+                      isLoading={lineupsLoading}
+                      user={user}
+                      isAdmin={isAdmin}
+                      canSignup={isUpcoming && spotsRemaining > 0}
+                      isTraining={false}
+                    />
+                  </TabsContent>
+                  
+                  <TabsContent value="black" className="mt-6">
+                    <TeamLineup
+                      matchId={match.id}
+                      team="black"
+                      teamName="Equipo Negro"
+                      players={lineups?.black || []}
+                      isLoading={lineupsLoading}
+                      user={user}
+                      isAdmin={isAdmin}
+                      canSignup={isUpcoming && spotsRemaining > 0}
+                      isTraining={false}
+                    />
+                  </TabsContent>
+                </Tabs>
+              );
+            })()}
+          </div>
+        </>
       )}
 
       {/* Full capacity message */}

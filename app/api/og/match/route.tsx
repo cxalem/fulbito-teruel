@@ -64,10 +64,12 @@ export async function GET(request: NextRequest) {
     
     const timeStr = `${startDate.toLocaleTimeString('es-ES', { 
       hour: '2-digit', 
-      minute: '2-digit' 
+      minute: '2-digit',
+      timeZone: 'Europe/Madrid'
     })} - ${endDate.toLocaleTimeString('es-ES', { 
       hour: '2-digit', 
-      minute: '2-digit' 
+      minute: '2-digit',
+      timeZone: 'Europe/Madrid'
     })}`
     
     // Determine match type

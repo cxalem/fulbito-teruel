@@ -69,10 +69,12 @@ export async function generateMetadata({ params }: MatchPageProps) {
   
   const time = `${startDate.toLocaleTimeString('es-ES', {
     hour: '2-digit',
-    minute: '2-digit'
+    minute: '2-digit',
+    timeZone: 'Europe/Madrid'
   })} - ${endDate.toLocaleTimeString('es-ES', {
     hour: '2-digit',
-    minute: '2-digit'
+    minute: '2-digit',
+    timeZone: 'Europe/Madrid'
   })}`
 
   const location = match.is_private ? 'Ubicación privada' : match.location

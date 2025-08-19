@@ -70,7 +70,13 @@ export type CreateMatchFormData = z.infer<typeof createMatchSchema>
 
 // Helper function to convert form data to API format
 export function formatMatchData(formData: CreateMatchFormData) {
-  const startDateTime = new Date(formData.date + 'T' + formData.start_time)
+  // Parse the date and time components
+  const [year, month, day] = formData.date.split('-').map(Number)
+  const [hours, minutes] = formData.start_time.split(':').map(Number)
+  
+  // Create the date object in the user's local timezone
+  // This ensures that 10:00 in the form stays as 10:00 local time
+  const startDateTime = new Date(year, month - 1, day, hours, minutes, 0, 0)
   const endDateTime = new Date(startDateTime.getTime() + (formData.duration * 60 * 60 * 1000))
   
   return {

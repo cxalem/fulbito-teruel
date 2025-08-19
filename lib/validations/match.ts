@@ -35,13 +35,8 @@ export const createMatchSchema = z.object({
     .optional(),
   
   renter_name: z.string()
-    .transform(val => val === '' ? undefined : val)
-    .pipe(
-      z.string()
-        .min(2, 'El nombre debe tener al menos 2 caracteres')
-        .max(50, 'El nombre no puede exceder 50 caracteres')
-        .optional()
-    ),
+    .max(50, 'El nombre no puede exceder 50 caracteres')
+    .optional(),
   
   renter_player_id: z.string().uuid().optional(),
   
@@ -52,7 +47,9 @@ export const createMatchSchema = z.object({
 })
   .refine((data) => {
     // At least one of renter_name or renter_player_id must be provided
-    return data.renter_name || data.renter_player_id
+    const hasRenterName = data.renter_name && data.renter_name.trim() !== ''
+    const hasRenterPlayerId = data.renter_player_id && data.renter_player_id.trim() !== ''
+    return hasRenterName || hasRenterPlayerId
   }, {
     message: 'Proporciona el nombre del organizador',
     path: ['renter_name']
@@ -93,8 +90,8 @@ export function formatMatchData(formData: CreateMatchFormData) {
     is_private: formData.is_private,
     match_type: formData.match_type as 'friendly' | 'training',
     total_cost: formData.total_cost || null,
-    renter_name: formData.renter_name || null,
+    renter_name: (formData.renter_name && formData.renter_name.trim() !== '') ? formData.renter_name.trim() : null,
     renter_player_id: formData.renter_player_id || null,
-    description: formData.description || null,
+    description: (formData.description && formData.description.trim() !== '') ? formData.description.trim() : null,
   }
 }

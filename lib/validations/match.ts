@@ -6,12 +6,11 @@ export const createMatchSchema = z.object({
     .min(3, 'La ubicación debe tener al menos 3 caracteres')
     .max(100, 'La ubicación no puede exceder 100 caracteres'),
   
-  capacity: z.number()
-    .min(10, 'Mínimo 10 jugadores')
-    .max(30, 'Máximo 30 jugadores')
-    .default(18),
-  
   match_type: z.enum(['friendly', 'training']).default('friendly'),
+  
+  capacity: z.number()
+    .int('Debe ser un número entero')
+    .default(18),
   
   is_private: z.boolean().default(false),
   
@@ -62,6 +61,17 @@ export const createMatchSchema = z.object({
   }, {
     message: 'La fecha y hora deben ser en el futuro',
     path: ['date']
+  })
+  .refine((data) => {
+    // Validate capacity based on match type
+    if (data.match_type === 'training') {
+      return data.capacity >= 1 && data.capacity <= 6
+    } else {
+      return data.capacity >= 14 && data.capacity <= 18
+    }
+  }, {
+    message: 'Capacidad inválida para el tipo de partido seleccionado',
+    path: ['capacity']
   })
 
 export type CreateMatchFormData = z.infer<typeof createMatchSchema>

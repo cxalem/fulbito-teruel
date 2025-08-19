@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import * as React from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -53,7 +54,7 @@ export function CreateMatchForm() {
     mode: "onChange" as const,
     defaultValues: {
       location: "",
-      capacity: 18,
+      capacity: 18, // Default for friendly
       match_type: "friendly" as const,
       is_private: false,
       date: format(addDays(new Date(), 1), "yyyy-MM-dd"), // Tomorrow
@@ -65,6 +66,18 @@ export function CreateMatchForm() {
       description: "",
     },
   });
+
+  // Watch match type to adjust capacity
+  const matchType = form.watch("match_type");
+  
+  // Update capacity when match type changes
+  React.useEffect(() => {
+    if (matchType === "training") {
+      form.setValue("capacity", 6);
+    } else {
+      form.setValue("capacity", 18);
+    }
+  }, [matchType, form]);
 
   const onSubmit = async (data: CreateMatchFormData) => {
     setIsSubmitting(true);
@@ -138,29 +151,38 @@ export function CreateMatchForm() {
                 <FormField
                   control={form.control}
                   name="capacity"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="flex items-center gap-2">
-                        <Users className="h-4 w-4" />
-                        Capacidad
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          min="10"
-                          max="30"
-                          {...field}
-                          onChange={(e) =>
-                            field.onChange(parseInt(e.target.value))
+                  render={({ field }) => {
+                    const isTraining = matchType === "training";
+                    const minCapacity = isTraining ? 1 : 14;
+                    const maxCapacity = isTraining ? 6 : 18;
+                    
+                    return (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2">
+                          <Users className="h-4 w-4" />
+                          Capacidad
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            min={minCapacity}
+                            max={maxCapacity}
+                            {...field}
+                            onChange={(e) =>
+                              field.onChange(parseInt(e.target.value))
+                            }
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          {isTraining 
+                            ? `Número máximo de jugadores (1-${maxCapacity})`
+                            : `Número máximo de jugadores (${minCapacity}-${maxCapacity})`
                           }
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Número máximo de jugadores (10-30)
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    );
+                  }}
                 />
 
                 <FormField

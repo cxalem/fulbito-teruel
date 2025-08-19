@@ -101,7 +101,13 @@ export function MatchDetailView({
       <div className="flex items-center justify-between">
         <Button
           variant="ghost"
-          onClick={() => router.back()}
+          onClick={() => {
+            if (window.history.length > 1) {
+              router.back();
+            } else {
+              router.push('/');
+            }
+          }}
           className="cursor-pointer"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />

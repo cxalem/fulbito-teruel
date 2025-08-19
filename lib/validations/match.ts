@@ -46,15 +46,6 @@ export const createMatchSchema = z.object({
     .optional(),
 })
   .refine((data) => {
-    // At least one of renter_name or renter_player_id must be provided
-    const hasRenterName = data.renter_name && data.renter_name.trim() !== ''
-    const hasRenterPlayerId = data.renter_player_id && data.renter_player_id.trim() !== ''
-    return hasRenterName || hasRenterPlayerId
-  }, {
-    message: 'Proporciona el nombre del organizador',
-    path: ['renter_name']
-  })
-  .refine((data) => {
     // Validate that the date is not in the past
     const selectedDate = new Date(data.date + 'T' + data.start_time)
     const now = new Date()

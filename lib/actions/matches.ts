@@ -21,6 +21,7 @@ export interface CreateMatchData {
   total_cost: number | null
   renter_player_id?: string | null
   renter_name?: string | null
+  description?: string | null
 }
 
 /**
@@ -128,7 +129,8 @@ export async function createMatchWithRenter(matchData: CreateMatchData): Promise
         _match_type: matchData.match_type,
         _total_cost: matchData.total_cost,
         _renter_player_id: matchData.renter_player_id,
-        _renter_name: matchData.renter_name
+        _renter_name: matchData.renter_name,
+        _description: matchData.description
       })
     
     if (error) {

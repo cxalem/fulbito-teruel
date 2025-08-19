@@ -91,5 +91,6 @@ export function formatMatchData(formData: CreateMatchFormData) {
     total_cost: formData.total_cost || null,
     renter_name: formData.renter_name || null,
     renter_player_id: formData.renter_player_id || null,
+    description: formData.description || null,
   }
 }

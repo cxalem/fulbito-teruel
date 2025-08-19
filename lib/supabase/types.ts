@@ -69,6 +69,7 @@ export interface Database {
           rented_by_player_id: string | null
           rented_by_name: string | null
           total_cost: number | null
+          description: string | null
           created_at: string
         }
         Insert: {
@@ -84,6 +85,7 @@ export interface Database {
           rented_by_player_id?: string | null
           rented_by_name?: string | null
           total_cost?: number | null
+          description?: string | null
           created_at?: string
         }
         Update: {
@@ -99,6 +101,7 @@ export interface Database {
           rented_by_player_id?: string | null
           rented_by_name?: string | null
           total_cost?: number | null
+          description?: string | null
           created_at?: string
         }
       }
@@ -172,6 +175,7 @@ export interface Database {
           _total_cost: number | null
           _renter_player_id?: string | null
           _renter_name?: string | null
+          _description?: string | null
         }
         Returns: string
       }

@@ -47,7 +47,7 @@ export function TeamSignupDialog({
       </Button>
 
       <Dialog open={showSignupDialog} onOpenChange={setShowSignupDialog}>
-        <DialogContent className="sm:max-w-md h-[600px] md:h-[720px] flex flex-col">
+        <DialogContent className="sm:max-w-md h-fit flex flex-col">
           <DialogHeader>
             <DialogTitle>
               {isTraining ? "Apuntarse al entrenamiento" : `Apuntarse al ${teamName}`}

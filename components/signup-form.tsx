@@ -27,8 +27,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Label } from "@/components/ui/label";
-import { UserPlus, Search } from "lucide-react";
+  import { UserPlus } from "lucide-react";
 
 import { useCreateSignup, useSearchPlayers } from "@/lib/queries";
 import {
@@ -36,13 +35,12 @@ import {
   getUserDisplayName,
   getUserInitials,
 } from "@/lib/utils/user";
-import { 
-  getStoredDisplayName, 
+import {
+  getStoredDisplayName,
   setStoredDisplayName,
   getStoredAvatarUrl,
-  setStoredAvatarUrl 
+  setStoredAvatarUrl,
 } from "@/lib/utils/localStorage";
-import { AvatarUpload } from "@/components/avatar-upload";
 import { toast } from "sonner";
 
 const signupSchema = z
@@ -113,7 +111,9 @@ export function SignupForm({
 
   // Determine initial player option and display name
   const initialPlayerOption = user ? "current_user" : "new";
-  const initialDisplayName = user ? getUserDisplayName(user) : (getStoredDisplayName() || "");
+  const initialDisplayName = user
+    ? getUserDisplayName(user)
+    : getStoredDisplayName() || "";
   const initialAvatarUrl = user ? getUserAvatar(user) : getStoredAvatarUrl();
   const userInitials = getUserInitials(user);
 
@@ -170,9 +170,7 @@ export function SignupForm({
   };
 
   const teamColor =
-    team === "white"
-      ? "bg-zinc-100"
-      : "bg-zinc-900 dark:bg-zinc-700";
+    team === "white" ? "bg-zinc-100" : "bg-zinc-900 dark:bg-zinc-700";
   const teamName = team === "white" ? "Equipo Blanco" : "Equipo Negro";
 
   return (
@@ -186,7 +184,10 @@ export function SignupForm({
       )}
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 overflow-x-hidden">
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="space-y-6 overflow-x-hidden"
+        >
           {/* Position Selection */}
           <FormField
             control={form.control}
@@ -228,7 +229,9 @@ export function SignupForm({
                     <div className="w-64 md:w-full overflow-x-scroll md:overflow-auto">
                       <TabsList
                         className={`flex md:max-w-full ${
-                          user ? "grid-cols-3 w-96 overflow-x-scroll md:overflow-auto" : "grid-cols-2"
+                          user
+                            ? "grid-cols-3 w-96 overflow-x-scroll md:overflow-auto"
+                            : "grid-cols-2"
                         }`}
                       >
                         {user && (
@@ -237,7 +240,9 @@ export function SignupForm({
                             className="cursor-pointer"
                           >
                             <Avatar className="h-4 w-4 mr-2">
-                              <AvatarImage src={initialAvatarUrl || undefined} />
+                              <AvatarImage
+                                src={initialAvatarUrl || undefined}
+                              />
                               <AvatarFallback className="text-xs">
                                 {userInitials}
                               </AvatarFallback>
@@ -249,13 +254,13 @@ export function SignupForm({
                           <UserPlus className="h-4 w-4 mr-2" />
                           Nuevo jugador
                         </TabsTrigger>
-                        <TabsTrigger
+                        {/* <TabsTrigger
                           value="existing"
                           className="cursor-pointer"
                         >
                           <Search className="h-4 w-4 mr-2" />
                           Jugador existente
-                        </TabsTrigger>
+                        </TabsTrigger> */}
                       </TabsList>
                     </div>
 
@@ -267,7 +272,9 @@ export function SignupForm({
                         <Card className="p-4">
                           <div className="flex items-center gap-3">
                             <Avatar className="h-12 w-12">
-                              <AvatarImage src={initialAvatarUrl || undefined} />
+                              <AvatarImage
+                                src={initialAvatarUrl || undefined}
+                              />
                               <AvatarFallback>{userInitials}</AvatarFallback>
                             </Avatar>
                             <div>
@@ -297,21 +304,23 @@ export function SignupForm({
                           </FormItem>
                         )}
                       />
-                      
+
                       {/* Avatar Upload for new players */}
-                      <div>
+                      {/* <div>
                         <Label>Avatar (opcional)</Label>
                         <div className="mt-2">
                           <AvatarUpload
                             currentAvatar={avatarUrl}
-                            displayName={form.watch("display_name") || "Jugador"}
+                            displayName={
+                              form.watch("display_name") || "Jugador"
+                            }
                             onAvatarChange={setAvatarUrl}
                           />
                         </div>
-                      </div>
+                      </div> */}
                     </TabsContent>
 
-                    <TabsContent value="existing" className="space-y-4 mt-4">
+                    {/* <TabsContent value="existing" className="space-y-4 mt-4">
                       <div className="space-y-4">
                         <div>
                           <Label htmlFor="search">Buscar jugador</Label>
@@ -367,7 +376,7 @@ export function SignupForm({
                           />
                         )}
                       </div>
-                    </TabsContent>
+                    </TabsContent> */}
                   </Tabs>
                 </FormControl>
                 <FormMessage />
